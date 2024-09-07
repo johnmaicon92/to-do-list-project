@@ -67,68 +67,79 @@ The goal of this note is to ensure that all code in your Python file runs smooth
 """
 
 def display_menu():
-    print("Welcome to the To-Do List App! \nMenu:")
+    print("\nWelcome to the To-Do List App!\n \nMenu:")
+    print("--------------------")
     print("1. Add Task")
     print("2. View Tasks")
     print("3. Mark as Complete")
     print("4. Delete Task")
-    print("5. Exit")
+    print("5. Exit" "\n")
 
 
 def add_task(tasks):
-    task = input("Enter a task: ")
-    tasks.append(task)
-    print("Task added successfully!")
+    task_description = input("Enter a task: ")
+    tasks.append({"description": task_description, "status": False})
+    print(f"Task '{task_description}' added successfully!")
 
 
 def view_tasks(tasks):
     print("\nTasks:")
     for i, task in enumerate(tasks, start=1):
-        print(f"{i}. {task}")
+        status = "Incomplete" if task["status"] == False else "Complete"
+        print(f"{i}. {task['description']} - {status}")
 
 
-def mark_task_done(tasks):
+def mark_task_complete(tasks):
     if not tasks:
-        print("No tasks to mark as done.")
+        print("No task to mark as complete.")
         return
 
-
     view_tasks(tasks)
-    index = int(input("Enter task index to mark as done: ")) - 1
-
+    index = int(input("Select task to mark as complete: \n")) - 1
 
     if 0 <= index < len(tasks):
-        removed_task = tasks.pop(index)
-        print(f"Task '{removed_task}' marked as done and removed.")
+        tasks[index]["status"] = True
+        print(f"Task '{tasks[index]['description']}' marked as complete.")
     else:
         print("Invalid task index.")
+
 
 def delete_task(tasks):
     if not tasks:
         print("No tasks to delete.")
         return
 
-
     view_tasks(tasks)
     index = int(input("Enter task index to delete: ")) - 1
 
-
     if 0 <= index < len(tasks):
         removed_task = tasks.pop(index)
-        print(f"Task '{removed_task}' deleted.")
+        print(f"Task '{removed_task['description']}' deleted.")
     else:
         print("Invalid task index.")
+
 
 def save_tasks(tasks):
     with open("tasks.txt", "w") as f:
         for task in tasks:
-            f.write(task + '\n')
+            f.write(f"{task['description']}|{task['status']}\n")
 
 
 def load_tasks():
     try:
         with open("tasks.txt", "r") as f:
-            return f.read().splitlines()
+            lines = f.read().splitlines()
+            if not lines:
+                print("No tasks found in file.")
+                return []
+            tasks = []
+            for line in lines:
+                if "|" in line:
+                    description, status = line.split("|")
+                    tasks.append({"description": description, "status": status == "True"})
+                else:
+                    print(f"Warning: ignoring invalid line in tasks file: {line}")
+            return tasks
     except FileNotFoundError:
         return []
 
@@ -136,23 +147,20 @@ def load_tasks():
 def main():
     tasks = load_tasks()
 
-
     while True:
         display_menu()
 
+        choice = (input("Select an option: ")).lower()
 
-        choice = input("Select an option: ").lower()
-
-
-        if choice == '1':
+        if choice == "1":
             add_task(tasks)
-        elif choice == '2':
+        elif choice == "2":
             view_tasks(tasks)
-        elif choice == '3':
-            mark_task_done(tasks)
-        elif choice == '4':
+        elif choice == "3":
+            mark_task_complete(tasks)
+        elif choice == "4":
             delete_task(tasks)
-        elif choice == '5':
+        elif choice == "5":
             print("Exiting.")
             save_tasks(tasks)
             break
