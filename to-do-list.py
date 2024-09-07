@@ -150,7 +150,7 @@ def main():
     while True:
         display_menu()
 
-        choice = (input("Select an option: ")).lower()
+        choice = (input("Select an option number: ")).lower()
 
         if choice == "1":
             add_task(tasks)
